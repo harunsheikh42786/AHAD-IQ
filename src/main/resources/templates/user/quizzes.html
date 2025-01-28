@@ -1,0 +1,22 @@
+<div th:fragment="quizzes" class="vh-100 p-4 rounded overflow-auto">
+    <!-- Message Display Section -->
+    <div id="message" class="alert" style="display: none;"></div>
+
+    <!-- Header -->
+    <h2 class="text-center mb-4 text-warning">
+        <span th:text="${user?.name}"></span> Quizzes
+    </h2>
+
+    <!-- If No Quizzes -->
+    <div class="text-center" th:if="${user?.quizzes.isEmpty()}">
+        <p class="text-light">No quizzes available. Create a new quiz to get started!</p>
+        <button id="createQuizBtn" class="btn btn-success fs-3">Create Quiz</button>
+    </div>
+
+    <!-- List of Quizzes -->
+    <div th:unless="${user?.quizzes.isEmpty()}">
+        <div class="row row-cols-1 g-3" id="quiz-list">
+            <!-- Quizzes will be dynamically injected here -->
+        </div>
+    </div>
+</div>

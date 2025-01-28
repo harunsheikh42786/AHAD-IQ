@@ -1,0 +1,65 @@
+<div th:fragment="quiz-form" class="card bg-transparent border-1">
+    <!-- Card Header -->
+    <div class="card-header bg-success text-white text-center">
+        <h4 class="m-0">Create a Quiz</h4>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body text-light rounded shadow">
+        <!-- Success/Info/Warning Message -->
+        <div class="form-group text-center fw-bold mb-3">
+            <p th:text="${message?.content}" th:class="'text-' + ${message?.type} + ' m-2'"></p>
+        </div>
+        <!-- Quiz Form -->
+        <form id="quizForm">
+            <!-- Quiz Details Row -->
+            <div class="row mt-3">
+                <!-- Quiz Name -->
+                <div class="col-md-6 mb-3">
+                    <label for="name" class="form-label fw-bold">Quiz Name</label>
+                    <input type="text" id="name" name="name" class="form-control" placeholder="Enter Quiz Name" required>
+                </div>
+        
+                <!-- Number of Questions -->
+                <div class="col-md-6 mb-3">
+                    <label for="numberOfQuestions" class="form-label fw-bold">Quiz Length</label>
+                    <input type="number" id="numberOfQuestions" name="numberOfQuestions" class="form-control"
+                        placeholder="Number of Questions" min="1" required>
+                </div>
+            </div>
+        
+            <!-- Difficulty Level & Question Type Row -->
+            <div class="row">
+                <!-- Difficulty Level -->
+                <div class="col-md-6 mb-3">
+                    <label for="quizLevel" class="form-label fw-bold">Difficulty Level</label>
+                    <select id="quizLevel" name="quizLevel" class="form-select" required>
+                        <option value="" disabled selected>Select Difficulty Level</option>
+                        <option value="SIMPLE">Simple</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="HARD">Hard</option>
+                    </select>
+                </div>
+        
+                <!-- Question Type -->
+                <div class="col-md-6 mb-3">
+                    <label for="questionType" class="form-label fw-bold">Question Type</label>
+                    <select id="questionType" name="quizType" class="form-select" required>
+                        <option value="" disabled selected>Select Question Type</option>
+                        <option value="INTERVIEW">Interview</option>
+                        <option value="EXAM">Exam</option>
+                        <option value="IQ">IQ</option>
+                    </select>
+                </div>
+            </div>
+        
+            <!-- Submit & Reset Buttons -->
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-success px-4">Create Quiz</button>
+                    <button type="reset" class="btn btn-secondary px-4">Reset</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

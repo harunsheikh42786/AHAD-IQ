@@ -1,0 +1,85 @@
+<div th:fragment="sidebar" class="sidebar d-flex flex-column vh-100">
+    <div class="bg-gradient">
+        <h3 class="text-light text-center mt-2">AHAD-IQ</h3>
+        <hr>
+    </div>
+    <a id="home" th:href="@{'/'}" class="anchor m-1"><i class="bi bi-house"></i> Home</a>
+    <a id="app" th:href="@{'/user/app'}" class="anchor m-1"><i class="bi bi-person"></i> App</a>
+    <a id="playingGame" th:href="@{'/user/app'}" class="anchor m-1"><i class="bi bi-controller"></i> Playing Game</a>
+    <div class="mt-auto p-3">
+        <a th:href="@{'/register'}" id="registerButton" class="btn btn-success w-100 my-1"><i class="bi bi-person-add"></i> Register</a>
+        <a th:href="@{'/login'}" id="loginButton" class="btn btn-primary w-100 my-1"><i class="bi bi-box-arrow-left"></i> Login</a>
+        <a id="showLogoutDialogButton" class="btn btn-danger w-100 my-1"><i class="bi bi-box-arrow-right"></i> Logout</a>
+        <!-- Custom Confirmation Dialog -->
+        <div id="confirmationDialog" class="confirmation-dialog text-dark">
+            <div class="dialog-content">
+                <h5 class="text-light">Confirm Logout</h5>
+                <p class="text-light">Are you sure you want to logout?</p>
+                <div class="dialog-buttons">
+                    <button id="cancelButton" class="btn btn-secondary">Cancel</button>
+                    <a th:href="@{'/do-logout'}" class="btn btn-danger">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Overlay Effect */
+        .confirmation-dialog {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Dialog Box */
+        .dialog-content {
+            background-color: #9d5cce57;;
+            border-radius: 10px;
+            padding: 30px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .dialog-content h5 {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .dialog-content p {
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        /* Buttons */
+        .dialog-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+    </style>
+
+    <script>
+        const showLogoutDialogButton = document.getElementById("showLogoutDialogButton");
+        const confirmationDialog = document.getElementById("confirmationDialog");
+        const cancelButton = document.getElementById("cancelButton");
+
+        // Show dialog on Logout button click
+        showLogoutDialogButton.addEventListener("click", () => {
+            confirmationDialog.style.display = "flex"; // Show dialog
+        });
+
+        // Hide dialog on Cancel button click
+        cancelButton.addEventListener("click", () => {
+            confirmationDialog.style.display = "none"; // Hide dialog
+        });
+    </script>
+</div>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{base :: parent(~{::title}, ~{::style}, ~{::script}, ~{::#content})}">
+
+<head>
+    <title>Quiz Start</title>
+    <!-- Custom Styles -->
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(rgba(0, 0, 0, 0.651), rgba(30, 74, 41, 0.405)), url('/bg-1.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        /* Default styles for options */
+        .answer-label {
+            cursor: pointer;
+        }
+
+        .answer-option:hover,.selected, .answer-option .selected {
+            background-color: #9c5cce !important; /* Green background */
+            color: white !important; /* White text color */
+        }
+        /* Ensure smooth scrolling for overflow sections */
+        #answerOptions, #questionList {
+            max-height: 300px; /* Adjust based on design */
+            overflow-y: auto;
+        }
+
+        /* Hide borders on small screens for a cleaner look */
+        @media (max-width: 768px) {
+            .border {
+                border: none;
+            }
+        }
+
+        /* Adjust button spacing for small screens */
+        @media (max-width: 576px) {
+            #previous, #next {
+                width: 100%; /* Make buttons full-width */
+                margin-bottom: 10px; /* Add spacing */
+            }
+        }
+
+
+    </style>
+</head>
+
+<body>
+    <div id="content"
+    class="container-fluid vh-100 d-flex flex-column justify-content-center align-items-center bg-transparent">
+        <!-- Main Content -->
+        <div class="row h-100 w-100 m-0 d-flex flex-wrap overflow-auto">
+            <!-- Quiz ID and Question ID -->
+            <input id="quizId" class="d-none" type="hidden" th:value="${quiz.id}">
+            <input id="questionId" class="d-none" type="hidden">
+
+            <!-- Current Question and Options -->
+            <div class="col-12 col-lg-8 h-auto p-4 rounded bg-transparent my-3">
+                <h3 class="text-light text-center bg-primary p-2 rounded">
+                    <span th:text="${quiz.name}">Quiz Title</span>
+                </h3>
+                <div class="text-end p-3">
+                    <!-- Quiz Score Display -->
+                    <div class="d-inline-block p-3 bg-light" style="border: 1px solid #000; border-radius: 8px;">
+                        <!-- Conditional Display for Winner -->
+                        <span th:if="${quiz.totalScore == 0 && (quiz.currentQuestionNumber+1) == quiz.numberOfQuestions}" style="font-size: 1.2rem; font-weight: bold; color: red;">
+                            🦆 Loser! You are Duck.
+                        </span>
+                        <span th:if="${quiz.totalScore == 100 || quiz.totalScore > 99}" style="font-size: 1.2rem; font-weight: bold; color: green;">
+                            🎉 Winner! You scored 100%
+                        </span>
+                        <span th:if="${quiz.totalScore != 0 && quiz.totalScore != 100 && quiz.totalScore < 99}" th:text="${'Score : '+ quiz.totalScore+ '%'}" style="font-size: 1.2rem; font-weight: bold; color: black;">
+                        </span>
+                        <button onclick="refresh()" class="btn text-light" style="background-color: #9c5cce;"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                        <!-- Display for Percentage -->
+                       
+                    </div>
+                </div>
+                <div class="my-2">
+                    <h3><span id="questionText" class="text-light"></span></h3>
+                    <ul id="answerOptions" class="p-0" style="list-style: none; max-height: 300px;">
+                        <!-- Options dynamically load honge -->
+                    </ul>
+                    <div class="text-start mt-3">
+                        <button id="submitButton" class="btn btn-success px-4" onclick="submitAnswer()">Submit</button>
+                    </div>
+                    <!-- Navigation Buttons -->
+                    <div class="mt-3 text-end">
+                        <button id="previous" class="btn btn-secondary me-2" onclick="previousQuestion()">Previous</button>
+                        <button id="next" class="btn btn-primary" onclick="nextQuestion()">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Question List -->
+            <div class="col-12 col-lg-3 offset-lg-1 h-auto p-4 my-2 border rounded bg-white overflow-auto">
+                <h4>Question List</h4>
+                <div id="questionList" class="h-auto">
+                    <!-- Questions dynamically load honge -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JavaScript -->
+    <script>
+
+        function refresh(){
+            window.location.reload();
+        }
+
+       let quizId = document.getElementById("quizId").value; // Quiz ID
+        let currentQuestionNumber = 0; // Current Question
+        let submittedAnswers = {}; // Store submitted answers
+
+        // Fetch and render the current question
+        function fetchCurrentQuestion() {
+            fetch(`/question/${quizId}/${currentQuestionNumber}`)
+                .then(response => response.json())
+                .then(question => {
+                    renderCurrentQuestion(question);
+                })
+                .catch(error => console.error('Error fetching current question:', error));
+        }
+
+        function renderCurrentQuestion(question) {
+                // Set question text
+                document.getElementById("questionId").value = `${question.id}`;
+                document.getElementById("questionText").innerText = `Q-${currentQuestionNumber + 1}: ${question.question}`;
+
+                // Render answer options
+                const answerList = document.getElementById("answerOptions");
+                answerList.innerHTML = ""; // Clear previous answers
+
+                // Reset submit button visibility
+                const submitButton = document.querySelector("#submitButton");
+                submitButton.style.display = "block"; // Show submit button by default
+
+                question.answers.forEach((answer, index) => {
+                    const li = document.createElement("li");
+                    li.className = "answer-option m-3 p-0 bg-light text-dark rounded";
+
+                    // Create dynamic IDs for radio buttons (ans1, ans2, etc.)
+                    const ansIndex = `${index + 1}`;
+                    const options = ['A', 'B', 'C', 'D']; // Array for Option A, B, C, D
+                    // Proper inputs for answerOption and isTrue
+                    li.innerHTML = `
+                        <label for="ans${ansIndex}" class="answer-label form-label p-2">
+                            <input id="option${ansIndex}" type="text" class="form-control d-inline w-25 d-none" value="${answer.answerOption}" readonly>
+                            <input type="radio" class="d-none" id="ans${ansIndex}" name="isTrue" value="${answer.true}" ${question.submitOption != 0 ? 'disabled' : ''}>
+                            <b><span">Option ${options[index]} - </span></b>
+                            ${answer.answer}
+                        </label>
+                    `;
+
+
+
+                    // Append the <li> element to the answer list
+                    answerList.appendChild(li);
+
+                    // Check if the current option matches the submitted option
+                    if (question.submitOption === answer.answerOption) {
+                        li.classList.add("selected"); // Apply the 'selected' style
+                        submitButton.style.display = "none"; // Hide submit button if answer is already submitted
+                    }
+
+                    // Add click event listener to label
+                    const label = li.querySelector("label");
+                    label.addEventListener("click", () => {
+                        if (question.submitOption == 0) { // Allow selection only if no option is submitted
+                            // Remove the 'selected' class from all <li> elements
+                            const allListItems = document.querySelectorAll(".answer-option");
+                            allListItems.forEach((item) => item.classList.remove("selected"));
+
+                            // Add the 'selected' class to the current <li>
+                            li.classList.add("selected");
+                        }
+                    });
+                });
+
+                // Update question list after rendering the current question
+                fetchQuestionList();
+            }
+
+
+
+       function submitAnswer() {
+            // Get the selected radio button (match name attribute in HTML)
+            const selectedOption = document.querySelector('input[name="isTrue"]:checked');
+            if (!selectedOption) {
+                alert("Please select an answer.");
+                return;
+            }
+
+            // Retrieve the selected radio button's ID
+            const selectedOptionId = selectedOption.id;
+
+            // Use the ID to find the corresponding input (option value)
+            const optionValueInput = document.getElementById(`option${selectedOptionId.replace('ans', '')}`);
+            const optionValue = optionValueInput ? optionValueInput.value : null;
+
+            if (!optionValue) {
+                alert("Option value not found!");
+                return;
+            }
+
+            // Get the question ID
+            const questionId = document.getElementById("questionId").value;
+
+            // Get the selected radio button's value (true/false)
+            const answerStatus = selectedOption.value; // This is the value from the radio button (t/f)
+
+            // Build the URL dynamically
+            const url = `/question/submit/${questionId}/${optionValue}/${answerStatus}`;
+
+            // Send the GET request to the backend
+            fetch(url, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // Highlight the submitted answer
+                        highlightSubmittedAnswer(selectedOption.parentElement.parentElement);
+
+                        // Disable all options after submission
+                        document.querySelectorAll('input[name="isTrue"]').forEach(input => {
+                            input.disabled = true;
+                        });
+
+                        alert("Answer submitted successfully!");
+                    } else {
+                        alert("Failed to submit answer."+ answerStatus+", " + optionValue + ", " + questionId);
+                    }
+                })
+                .catch(error => console.error("Error submitting answer:", error));
+        }
+
+
+            // Helper function to highlight the submitted answer
+            function highlightSubmittedAnswer(submittedElement) {
+                // Remove 'selected' class from all options
+                const allOptions = document.querySelectorAll(".answer-option");
+                allOptions.forEach(option => option.classList.remove("selected"));
+
+                // Add 'selected' class to the submitted element
+                submittedElement.classList.add("selected");
+            }
+
+
+        
+        // Fetch and render the question list
+        function fetchQuestionList() {
+            fetch(`/question/${quizId}`)
+                .then(response => response.json())
+                .then(questions => {
+                    const questionListDiv = document.getElementById("questionList");
+                    questionListDiv.innerHTML = "";
+
+                    questions.forEach((question, index) => {
+                        const questionButton = document.createElement("button");
+                        questionButton.className = index === currentQuestionNumber ? "text-wrap btn btn-warning m-1" : "btn btn-light m-1";
+                        questionButton.innerText = `Q-${index + 1} ${question.question}`;
+                        questionButton.onclick = () => goToQuestion(index);
+                        questionListDiv.appendChild(questionButton);
+                    });
+                })
+                .catch(error => console.error("Error fetching question list:", error));
+        }
+
+        // Navigation functions
+        function nextQuestion() {
+            currentQuestionNumber++;
+            fetchCurrentQuestion();
+        }
+
+        function previousQuestion() {
+            if (currentQuestionNumber > 0) {
+                currentQuestionNumber--;
+                fetchCurrentQuestion();
+            }
+        }
+
+        function goToQuestion(index) {
+            currentQuestionNumber = index;
+            fetchCurrentQuestion();
+        }
+
+        // Page load
+        window.onload = fetchCurrentQuestion;
+
+        document.getElementById("playingGame").classList.add("active");
+    </script>
+</body>
+
+</html>

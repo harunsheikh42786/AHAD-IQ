@@ -1,0 +1,46 @@
+<div th:fragment="update-profile" class="card bg-transparent text-dark">
+    <!-- Card Header -->
+    <div class="card-header bg-primary text-white text-center">
+        <h4>User Profile</h4>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body rounded text-light">
+        <form th:action="@{/user/update}" method="post">
+            <!-- User Name -->
+            <div class="mb-3">
+                <label for="name" class="form-label fw-bold">Name</label>
+                <input type="text" id="name" name="name" th:value="${user?.name}" class="form-control"
+                    placeholder="John Doe" required>
+            </div>
+
+            <!-- User Email -->
+            <div class="mb-3">
+                <label for="email" class="form-label fw-bold">Email</label>
+                <input type="email" id="email" name="email" th:value="${user?.email}" class="form-control"
+                    placeholder="example@gmail.com" required>
+            </div>
+
+            <!-- Gender Selection -->
+            <div class="mb-3">
+                <label for="gender" class="form-label fw-bold">Gender</label>
+                <select id="gender" name="gender" class="form-select" required>
+                    <option value="" disabled>Select Gender</option>
+                    <option value="MALE" th:selected="${user?.gender == 'MALE'}">Male</option>
+                    <option value="FEMALE" th:selected="${user?.gender == 'FEMALE'}">Female</option>
+                </select>
+            </div>
+
+            <!-- Date of Birth -->
+            <div class="mb-3">
+                <label for="dob" class="form-label fw-bold">Date of Birth</label>
+                <input type="date" id="dob" name="dob" th:value="${user?.dob}" class="form-control" required>
+            </div>
+
+            <!-- Update Button -->
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary w-100">Update Profile</button>
+            </div>
+        </form>
+    </div>
+</div>

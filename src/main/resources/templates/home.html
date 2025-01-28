@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{base :: parent(~{::title}, ~{::style}, ~{::script}, ~{::#content})}">
+
+<head>
+    <title>Home Page</title>
+    <!-- Custom Styles -->
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(rgba(0, 0, 0, 0.651), rgba(30, 74, 41, 0.405)), url('/bg-1.jpg');
+            background-size: cover;
+            background-position: 20%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="content" class="container-fluid vh-100 d-flex justify-content-center align-items-center">
+        <div class="container text-center px-3">
+            <img th:src="@{/logo1.png}" alt="Logo" class="img-fluid mx-auto d-block"
+                style="max-width: 67%; height: auto;">
+            <p class="mt-2 mx-5 px-lg-5 text-light fs-6">
+                <b>AHAD-IQ</b> is an engaging and interactive platform for testing and enhancing knowledge through a dynamic quiz
+                game, featuring thought-provoking questions and real-time scoring.
+            </p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        document.getElementById('home')?.classList.add('active');
+    </script>
+</body>
+
+</html>

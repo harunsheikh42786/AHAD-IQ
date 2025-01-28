@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{base :: parent(~{::title}, ~{::style}, ~{::script}, ~{::#content})}">
+
+<head>
+    <title>Home Page</title>
+    <!-- Custom Styles -->
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(rgba(0, 0, 0, 0.651), rgba(30, 74, 41, 0.405)), url('/bg-1.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        /* Default Layout for Small Screens (Up-Down) */
+        #content {
+            background: linear-gradient(rgba(57, 69, 101, 0), rgba(57, 57, 61, 0.833)), url('/brain.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            flex-direction: column !important; /* Up-Down layout */
+        }
+        
+        /* Layout for Medium (md) Screens and Larger (Left-Right) */
+        @media (min-width: 1400px) {
+            #content {
+                flex-direction: row !important; /* Left-Right layout */
+            }
+            
+            .quiz-list{
+                flex-direction: column !important; /* Up-Down layout */
+                width: 70%;
+            }
+            
+            .compo-list{
+                width: 30%;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="content" class="container-fluid min-vh-100 d-flex overflow-auto">
+        <!-- Left Side: Quiz Section -->
+        <div class="quiz-list vh-100 d-flex flex-column justify-content-center align-content-center p-3 bg-transparent">
+            <div th:replace="~{user/quizzes :: quizzes}"></div>
+        </div>
+    
+        <!-- Right Side: Profile and Forms Section -->
+        <div class="compo-list vh-100 p-3 bg-transparent">
+            <!-- Buttons to Select Content -->
+            <div class="row mb-3">
+                <div class="col-12 d-flex flex-wrap justify-content-between gap-2">
+                    <button class="btn btn-warning flex-grow-1" id="userProfileBtn">Profile</button>
+                    <button class="btn btn-primary flex-grow-1" id="updateProfileBtn">Update Profile</button>
+                    <button class="btn btn-success flex-grow-1" id="quizFormBtn">Create Quiz</button>
+                </div>
+            </div>
+    
+            <!-- Profile, Update Profile, and Quiz Form Sections -->
+            <div class="row my-1">
+                <div class="col-12 overflow-auto">
+                    <!-- User Profile Section -->
+                    <div id="userProfileSection" class="mb-3 overflow-auto" style="display: block;">
+                        <div th:replace="~{user/user-profile :: user-profile}"></div>
+                    </div>
+    
+                    <!-- Update Profile Section -->
+                    <div id="updateProfileSection" class="mb-3 overflow-auto" style="display: none;">
+                        <div th:replace="~{user/update-profile :: update-profile}"></div>
+                    </div>
+    
+                    <!-- Quiz Form Section -->
+                    <div id="quizFormSection" class="overflow-auto" style="display: none;">
+                        <div th:replace="~{user/quiz-form :: quiz-form}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        
+        <!-- JavaScript to Toggle Sections -->
+        <script>
+            // Get the button elements
+                const userProfileBtn = document.getElementById('userProfileBtn');
+                const updateProfileBtn = document.getElementById('updateProfileBtn');
+                const quizFormBtn = document.getElementById('quizFormBtn');
+                const createQuizBtn = document.getElementById('createQuizBtn');
+
+                // Get the sections to be toggled
+                const userProfileSection = document.getElementById('userProfileSection');
+                const updateProfileSection = document.getElementById('updateProfileSection');
+                const quizFormSection = document.getElementById('quizFormSection');
+
+                // Initially hide all sections
+                userProfileSection.style.display = '';
+                updateProfileSection.style.display = 'none';
+                quizFormSection.style.display = 'none';
+
+                // Show the User Profile section when the corresponding button is clicked
+                userProfileBtn.addEventListener('click', () => {
+                    userProfileSection.style.display = 'block';
+                    updateProfileSection.style.display = 'none';
+                    quizFormSection.style.display = 'none';
+                });
+
+                // Show the Update Profile section when the corresponding button is clicked
+                updateProfileBtn.addEventListener('click', () => {
+                    updateProfileSection.style.display = 'block';
+                    userProfileSection.style.display = 'none';
+                    quizFormSection.style.display = 'none';
+                });
+
+                // Show the Quiz Form section when the corresponding button is clicked
+                quizFormBtn.addEventListener('click', () => {
+                    quizFormSection.style.display = 'block';
+                    userProfileSection.style.display = 'none';
+                    updateProfileSection.style.display = 'none';
+                });
+                // Show the Quiz Form section when the corresponding button is clicked
+                createQuizBtn.addEventListener('click', () => {
+                    quizFormSection.style.display = 'block';
+                    userProfileSection.style.display = 'none';
+                    updateProfileSection.style.display = 'none';
+                });
+
+        </script>
+
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+            // Fetch quizzes when the page loads
+            fetchQuizzes();
+        });
+
+        function fetchQuizzes() {
+            fetch('/quiz/quizzes')
+                .then(response => response.json())
+                .then(function (data) {
+                    console.log(data);  // Log the quizzes data
+                    const quizzes = data;
+                    updateQuizList(quizzes);  // Update the quiz list dynamically
+                })
+                .catch(function (error) {
+                    console.error("Error fetching quizzes:", error);
+                });
+        }
+
+        // Handle form submission via JavaScript
+        const quizForm = document.getElementById("quizForm");
+        quizForm.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent the form from submitting the traditional way
+
+            const formData = new FormData(quizForm);
+
+            fetch('/quiz/new-quiz', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(function (data) {
+                    console.log("Quiz added:", data);
+                    fetchQuizzes(); // Update quiz list dynamically after quiz creation
+                    showMessage(data.message);  // Show the message after submission
+
+                })
+                .catch(function (error) {
+                    console.error("Error creating quiz:", error);
+                    alert("Error creating quiz.");
+                });
+        });
+
+        function showMessage(message) {
+            const messageElement = document.getElementById("message");
+            messageElement.innerHTML = `<p>Note :- ${message.content}</p>`;
+            messageElement.className = `text-center alert alert-${message.type} fw-bold text-${message.type}`;
+            messageElement.style.display = 'block';
+        }
+
+        function updateQuizList(quizzes) {
+            const quizContainer = document.querySelector("#quiz-list");
+            quizContainer.innerHTML = ""; // Clear existing quizzes
+
+            if (quizzes && quizzes.length > 0) {
+                quizzes.forEach(quiz => {
+                    // Format the createdAt date to '25-Dec-2024 07:05:45'
+                    const createdAt = new Date(quiz.createdAt);
+                    const formattedDate = new Intl.DateTimeFormat('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false
+                    }).format(createdAt);
+
+                    const quizElement = `
+                        <div class="col">
+                            <div class="card h-100 border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">
+                                        <a href="/quiz/get/${quiz.id}" class="text-decoration-none">${quiz.name}</a>
+                                    </h5>
+                                    <p class="card-text mb-1">
+                                        <strong>Type:</strong> ${quiz.quizType} 
+                                        | <strong>Level:</strong> ${quiz.quizLevel} 
+                                        | 
+                                        <strong>Score:</strong> 
+                                        <span>${quiz.totalScore + ' %'}</span>
+                                        |
+                                        <strong>Size:</strong> ${quiz.numberOfQuestions} 
+                                        | <strong>Attempted:</strong> ${quiz.currentQuestionNumber + 1} 
+                                        |
+                                        | <strong>Status:</strong> ${quiz.ready ? "You can play it." : "Click on Ready to play it."}
+                                    </p>
+                                    <p class="text-muted mb-1"><strong>Created on:</strong> ${formattedDate}</p>
+                                    <div class="text-end">
+                                    <!-- Conditionally render the button based on quiz.ready -->
+                                    <button class="btn btn-outline-primary btn-sm" onclick="ready('${quiz.id}')" 
+                                        style="display: ${quiz.ready ? 'none' : 'inline-block'};">
+                                        <i class="bi bi-arrow-repeat"></i> Ready
+                                    </button>
+                                    <a class="btn btn-outline-success btn-sm" href="/quiz/get/${quiz.id}" 
+                                        style="display: ${quiz.ready ? 'inline-block' : 'none'};">
+                                        <i class="bi bi-play"></i> Play
+                                    </a>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="removeQuiz('${quiz.id}')">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    quizContainer.insertAdjacentHTML('beforeend', quizElement);
+                });
+            } else {
+                quizContainer.innerHTML = "<p class='text-light text-center'>No quizzes available. Create a new quiz to get started!</p>";
+            }
+        }
+
+
+        // Example function to remove a quiz
+        function removeQuiz(quizId) {
+            if (confirm("Are you sure you want to delete this quiz?")) {
+                fetch(`/quiz/remove-quiz/${quizId}`, {
+                    method: 'GET',
+                })
+                    .then(response => response.json())
+                    .then(function (data) {
+                        console.log("Quiz removed:", data);
+                        fetchQuizzes(); // Update quiz list dynamically
+                        showMessage(data.message);  // Show success/error message
+                    })
+                    .catch(function (error) {
+                        console.error("Error removing quiz:", error);
+                        alert("Error removing quiz.");
+                    });
+            }
+        }
+
+        function ready(quizId) {
+                if (confirm("Are you sure you want to make this quiz ready to use?")) {
+                    fetch(`/quiz/ready-quiz/${quizId}`, {  // Sending quizId as a query parameter
+                        method: 'GET',
+                    })
+                        .then(response => response.json())
+                        .then(function (data) {
+                            if (data) {
+                                console.log("Quiz is Ready to use.");
+                                // Update the quiz list after making the quiz ready (if applicable)
+                                fetchQuizzes();  // Re-fetch the quizzes to update the list
+                                showMessage({ content: "Quiz is ready to use!", type: "success" });
+                            } else {
+                                console.log("Error marking quiz as ready.");
+                                showMessage({ content: "Error preparing quiz.", type: "danger" });
+                            }
+                        })
+                        .catch(function (error) {
+                            console.error("Error preparing quiz:", error);
+                            alert("Error preparing quiz.");
+                        });
+                }
+            }
+
+
+        document.getElementById('app')?.classList.add('active');
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,21 @@
+<div th:fragment="user-profile" class="card bg-gradient text-dark border-1">
+    <div class="card-body">
+        <!-- Profile Image Section -->
+        <div class="d-flex align-items-center mb-3">
+            <img src="/logo.png" class="rounded-circle border-warning border-2" alt="User Image" width="100" height="100">
+            <div class="ms-3">
+                <h5 class="card-title" th:text="${user.name}">John Doe</h5>
+                <p class="card-text text-primary" th:text="${user.email}">johndoe@example.com</p>
+            </div>
+        </div>
+
+        <!-- Profile Details Section -->
+        <h6>Profile Details</h6>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Date of Birth:</strong> <span th:text="${user.dob}">01 Jan 1990</span>
+            </li>
+            <li class="list-group-item"><strong>Gender:</strong> <span th:text="${user.gender}">Male</span></li>
+            <li class="list-group-item"><strong>QuizPlayed:</strong> <span th:text="${user.quizzes.size}">2</span></li>
+        </ul>
+    </div>
+</div>

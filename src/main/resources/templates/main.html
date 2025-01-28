@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h3>Main Page</h3>
+    <script>
+        const socket = new SockJS('http://localhost:8080/quiz-websocket');
+            const stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function (frame) {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/topic/questions', function (message) {
+                    console.log('New Question:', message.body);
+                    // Update UI here
+                });
+            });
+    </script>
+</body>
+</html>
