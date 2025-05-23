@@ -33,7 +33,6 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.6);
-            z-index: 1;
             justify-content: center;
             align-items: center;
         }
@@ -71,10 +70,12 @@
         const showLogoutDialogButton = document.getElementById("showLogoutDialogButton");
         const confirmationDialog = document.getElementById("confirmationDialog");
         const cancelButton = document.getElementById("cancelButton");
+        const formContainer = document.getElementsByClassName("form-container");
 
         // Show dialog on Logout button click
         showLogoutDialogButton.addEventListener("click", () => {
             confirmationDialog.style.display = "flex"; // Show dialog
+            formContainer.style.zIndex = -1;
         });
 
         // Hide dialog on Cancel button click
